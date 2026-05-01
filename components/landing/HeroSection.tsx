@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import {
   Search,
   ArrowRight,
@@ -56,6 +56,42 @@ export function HeroSection() {
   const [activeTab, setActiveTab] = useState<'video' | 'audio'>('video');
   const [downloadingFormat, setDownloadingFormat] = useState<string | null>(null);
   const [downloadTask, setDownloadTask] = useState<DownloadTask | null>(null);
+  const [serverReady, setServerReady] = useState(false);
+
+  // Wake up Render server on page load (free tier sleeps after 15min)
+  useEffect(() => {
+    fetch(`${API_URL}/api/health`)
+      .then(() => setServerReady(true))
+      .catch(() => {
+        // Retry once after 3s
+        setTimeout(() => {
+          fetch(`${API_URL}/api/health`)
+            .then(() => setServerReady(true))
+            .catch(() => setServerReady(false));
+        }, 3000);
+      });
+  }, []);
+
+  // Fetch with timeout + retry for Render cold starts
+  const fetchWithRetry = useCallback(
+    async (url: string, options: RequestInit, maxRetries = 2): Promise<Response> => {
+      for (let attempt = 0; attempt <= maxRetries; attempt++) {
+        try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 60000); // 60s timeout
+          const response = await fetch(url, { ...options, signal: controller.signal });
+          clearTimeout(timeoutId);
+          return response;
+        } catch (err) {
+          if (attempt === maxRetries) throw err;
+          // Wait before retry (2s, 4s)
+          await new Promise((r) => setTimeout(r, (attempt + 1) * 2000));
+        }
+      }
+      throw new Error('Failed to fetch');
+    },
+    [],
+  );
 
   const handleAnalyze = useCallback(async () => {
     if (!url.trim()) return;
@@ -67,7 +103,7 @@ export function HeroSection() {
       const detected = detectPlatform(url);
       setPlatform(detected);
 
-      const response = await fetch(`${API_URL}/api/video-info`, {
+      const response = await fetchWithRetry(`${API_URL}/api/video-info`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ url }),
@@ -78,17 +114,20 @@ export function HeroSection() {
       setVideoInfo(info);
     } catch (err) {
       console.error('Analysis error:', err);
-      const errorMessage =
-        err instanceof Error
-          ? err.message === 'Failed to fetch'
-            ? 'Cannot connect to server. Please try again.'
-            : err.message
-          : 'Something went wrong';
+      let errorMessage = 'Something went wrong';
+      if (err instanceof Error) {
+        if (err.name === 'AbortError' || err.message === 'Failed to fetch') {
+          errorMessage =
+            'Server is starting up (free tier). Please wait 30 seconds and try again.';
+        } else {
+          errorMessage = err.message;
+        }
+      }
       setVideoInfo({ success: false, error: errorMessage });
     } finally {
       setIsAnalyzing(false);
     }
-  }, [url]);
+  }, [url, fetchWithRetry]);
 
   const handleDownload = useCallback(
     async (format: 'mp4' | 'mp3', quality: string) => {
