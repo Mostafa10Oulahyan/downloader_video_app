@@ -1,49 +1,96 @@
-import { MonitorPlay, Zap, ShieldCheck } from 'lucide-react';
+'use client';
+
+import { Zap, MonitorPlay, ShieldCheck, Wifi, HardDrive, Gauge } from 'lucide-react';
+
+const stats = [
+  { value: '10M+', label: 'Downloads' },
+  { value: '99.9%', label: 'Uptime' },
+  { value: '4K', label: 'Max Quality' },
+  { value: '<3s', label: 'Avg Speed' },
+];
+
+const qualityCards = [
+  {
+    icon: Zap,
+    title: 'Lightning Fast',
+    description: 'Globally distributed edge network ensures maximum bandwidth saturation for instant delivery.',
+  },
+  {
+    icon: MonitorPlay,
+    title: '4K HDR Support',
+    description: 'Retain every detail. Download in up to 4K HDR at 60fps, preserving the original cinematic intent.',
+  },
+  {
+    icon: ShieldCheck,
+    title: 'Total Reliability',
+    description: 'Enterprise-grade infrastructure guarantees your downloads complete successfully, every time.',
+  },
+  {
+    icon: Wifi,
+    title: 'Smart Resuming',
+    description: 'Lost connection? Downloads auto-resume from where they stopped. Never lose progress again.',
+  },
+  {
+    icon: HardDrive,
+    title: 'Batch Downloads',
+    description: 'Queue multiple videos and let MediaFlow handle the rest. Download playlists effortlessly.',
+  },
+  {
+    icon: Gauge,
+    title: 'Zero Throttling',
+    description: 'No speed caps, no waiting queues. Full bandwidth utilization from start to finish.',
+  },
+];
 
 export function PlatformsSection() {
   return (
-    <section id="platforms" className="py-24 px-6 bg-[#222126] flex flex-col items-center justify-center text-center">
-      <div className="max-w-[1200px] mx-auto space-y-4 mb-16 w-full relative">
-        <h2 className="text-[34px] md:text-[48px] font-bold tracking-tight text-white leading-[1.00]">
-          Engineered for Quality.
-        </h2>
-        <p className="text-[16px] md:text-[20px] text-[#848E9C] font-medium max-w-2xl mx-auto">
-          No compression. No watermarks. Just pure, unadulterated pixels ready for the edit bay.
-        </p>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 relative z-10 w-full mb-24 max-w-[1200px] text-left">
-        {/* Card 1 */}
-        <div className="bg-[#2B2F36] p-8 rounded-[12px] border border-transparent hover:border-[#F0B90B] transition-colors shadow-[0_3px_5px_rgba(8,8,8,0.05)] cursor-default">
-          <div className="w-12 h-12 rounded bg-[#F0B90B]/10 flex items-center justify-center mb-6">
-            <Zap size={24} className="text-[#F0B90B]" />
-          </div>
-          <h3 className="font-bold text-white text-[24px] mb-3">Lightning Fast</h3>
-          <p className="text-[#848E9C] font-medium text-[16px] leading-[1.5]">
-            Our globally distributed edge network ensures maximum bandwidth saturation for instant delivery.
+    <section id="platforms" className="relative py-28 px-6 mesh-section overflow-hidden">
+      <div className="max-w-[1200px] mx-auto">
+        {/* Header */}
+        <div className="text-center mb-16 space-y-4">
+          <h2 className="text-[clamp(2rem,4vw,3rem)] font-extrabold tracking-tight text-[var(--text-primary)] leading-tight">
+            Engineered for
+            <span className="text-gradient-accent"> Quality</span>.
+          </h2>
+          <p className="text-[var(--text-secondary)] text-[clamp(1rem,1.5vw,1.15rem)] font-medium max-w-2xl mx-auto">
+            No compression. No watermarks. Just pure, unadulterated pixels ready for the edit bay.
           </p>
         </div>
 
-        {/* Card 2 */}
-        <div className="bg-[#2B2F36] p-8 rounded-[12px] border border-transparent hover:border-[#F0B90B] transition-colors shadow-[0_3px_5px_rgba(8,8,8,0.05)] cursor-default">
-          <div className="w-12 h-12 rounded bg-[#F0B90B]/10 flex items-center justify-center mb-6">
-            <MonitorPlay size={24} className="text-[#F0B90B]" />
-          </div>
-          <h3 className="font-bold text-white text-[24px] mb-3">4K Support</h3>
-          <p className="text-[#848E9C] font-medium text-[16px] leading-[1.5]">
-            Retain every detail. Download in up to 4K HDR at 60fps, preserving the original cinematic intent.
-          </p>
+        {/* Stats Row */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-16 max-w-3xl mx-auto">
+          {stats.map((stat) => (
+            <div key={stat.label} className="glass-card rounded-xl p-5 text-center">
+              <div className="text-[28px] font-extrabold text-[var(--accent)] mb-1">{stat.value}</div>
+              <div className="text-[13px] font-semibold text-[var(--text-muted)] uppercase tracking-wider">
+                {stat.label}
+              </div>
+            </div>
+          ))}
         </div>
 
-        {/* Card 3 */}
-        <div className="bg-[#2B2F36] p-8 rounded-[12px] border border-transparent hover:border-[#F0B90B] transition-colors shadow-[0_3px_5px_rgba(8,8,8,0.05)] cursor-default">
-          <div className="w-12 h-12 rounded bg-[#F0B90B]/10 flex items-center justify-center mb-6">
-            <ShieldCheck size={24} className="text-[#F0B90B]" />
-          </div>
-          <h3 className="font-bold text-white text-[24px] mb-3">Total Reliability</h3>
-          <p className="text-[#848E9C] font-medium text-[16px] leading-[1.5]">
-            Enterprise-grade infrastructure guarantees your downloads complete successfully, every time.
-          </p>
+        {/* Quality cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          {qualityCards.map((card, i) => {
+            const Icon = card.icon;
+            return (
+              <div
+                key={card.title}
+                className="glass-card rounded-2xl p-7 group cursor-default transition-all duration-300 hover:-translate-y-1"
+                style={{ animationDelay: `${i * 80}ms` }}
+              >
+                <div className="w-12 h-12 rounded-xl bg-[var(--accent-soft)] flex items-center justify-center mb-5 group-hover:bg-[var(--accent)]/20 transition-colors duration-300">
+                  <Icon size={22} className="text-[var(--accent)]" />
+                </div>
+                <h3 className="font-bold text-[var(--text-primary)] text-[18px] mb-2">
+                  {card.title}
+                </h3>
+                <p className="text-[var(--text-secondary)] font-medium text-[14px] leading-relaxed">
+                  {card.description}
+                </p>
+              </div>
+            );
+          })}
         </div>
       </div>
     </section>

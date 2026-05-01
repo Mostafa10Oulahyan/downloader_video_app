@@ -1,21 +1,24 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { DM_Sans } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const dmSans = DM_Sans({
+  variable: "--font-dm-sans",
   subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
 });
 
 export const metadata: Metadata = {
-  title: "Video Downloader - Download MP3 & MP4 from Any URL",
-  description: "Fast and easy video downloader. Download videos in MP3 or MP4 format from your favorite platforms.",
+  title: "MediaFlow — Download Videos & Audio Instantly",
+  description:
+    "Paste any YouTube or TikTok link and download in your preferred quality. 4K support, lightning fast, zero sign-up required.",
+  keywords: ["video downloader", "youtube downloader", "tiktok downloader", "mp4 download", "mp3 converter"],
+  openGraph: {
+    title: "MediaFlow — Download Videos & Audio Instantly",
+    description: "Paste any YouTube or TikTok link and download in your preferred quality.",
+    type: "website",
+  },
 };
 
 export default function RootLayout({
@@ -24,13 +27,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased dark`}
-    >
-      <body className="min-h-full flex flex-col">
-        {/* Grainy texture overlay */}
-        <div className="grain-overlay" />
+    <html lang="en" className={`${dmSans.variable} h-full`}>
+      <body className="min-h-full flex flex-col antialiased">
+        <div className="grain-overlay" aria-hidden="true" />
         {children}
         <Toaster />
       </body>
