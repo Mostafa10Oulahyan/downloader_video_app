@@ -133,12 +133,29 @@ export function HeroSection() {
           clearInterval(interval);
           setDownloadingFormat(null);
           if (task.status === 'completed' && task.filename) {
-            const link = document.createElement('a');
-            link.href = `${API_URL}/api/file/${encodeURIComponent(task.filename)}`;
-            link.download = task.filename;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+            // Use fetch + blob for cross-origin download (Render → browser)
+            try {
+              const fileResponse = await fetch(
+                `${API_URL}/api/file/${encodeURIComponent(task.filename)}`
+              );
+              if (!fileResponse.ok) throw new Error('File download failed');
+              const blob = await fileResponse.blob();
+              const blobUrl = URL.createObjectURL(blob);
+              const link = document.createElement('a');
+              link.href = blobUrl;
+              link.download = task.filename;
+              document.body.appendChild(link);
+              link.click();
+              document.body.removeChild(link);
+              URL.revokeObjectURL(blobUrl);
+            } catch (fileErr) {
+              console.error('File download error:', fileErr);
+              // Fallback: open in new tab
+              window.open(
+                `${API_URL}/api/file/${encodeURIComponent(task.filename)}`,
+                '_blank'
+              );
+            }
           }
         }
       } catch (err) {
